@@ -1,0 +1,670 @@
+DROP TABLE Client_master;
+
+CREATE TABLE Client_master(
+    client_no VARCHAR2(6),
+    name VARCHAR2(20) NOT NULL,
+    address1 VARCHAR2(30),
+    address2 VARCHAR2(30),
+    city VARCHAR2(15),
+    state VARCHAR2(15),
+    pincode NUMBER(6),
+    bla_due NUMBER(10,2),
+    CONSTRAINT client_no_pk PRIMARY KEY(client_no),
+    CONSTRAINT client_no_ck CHECK(client_no LIKE 'C%')
+);
+INSERT INTO client_master (client_no,name,city, pincode,state,bla_due) VALUES ('C00001','Ivan Bayross','Bombay',400054,'Maharashtra',15000);
+INSERT INTO client_master (client_no,name,city, pincode,state,bla_due) VALUES ('C00002','Vandana Saitwal','Madras',780001,'Tamil Nadu',0);
+INSERT INTO client_master (client_no,name,city, pincode,state,bla_due) VALUES ('C00003','Pramada Jagsute','Bombay',400057,'Maharashtra',5000);
+INSERT INTO client_master (client_no,name,city, pincode,state,bla_due) VALUES ('C00004','Basu Navindgi','Bombay',400056,'Maharashtra',2000);
+INSERT INTO client_master (client_no,name,city, pincode,state,bla_due) VALUES ('C00005','Rukmini','Bombay',400050,'Maharashtra',0);
+
+SELECT * from Client_master;
+
+CREATE TABLE product_master(
+    product_no VARCHAR2(6),
+    description VARCHAR2(50) NOT NULL,
+    profit_percent NUMBER(3,2) NOT NULL,
+    unit_measure VARCHAR2(10) NOT NULL,
+    record_lvl NUMBER(8)NOT NULL,
+    sell_price NUMBER(8,2)NOT NULL CHECK(sell_price>0),
+    cost_price NUMBER(8,2)NOT NULL CHECK(cost_price>0),
+    CONSTRAINT product_no_pk PRIMARY KEY(product_no),
+    CONSTRAINT product_no_ck CHECK(product_no LIKE 'P%')
+);
+
+
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P00001','1.44 Floppies',5,'Piece',20,525,500);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P03453','Monitors',6,'Piece',3,12000,11280);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P06734','Mouse',5,'Piece',5,1050,1000);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P07865','1.22 Floppies',5,'Piece',20,525,500);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P07868','Keyboards',2,'Piece',3,3150,3050);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P07885','CD Drive',2.5,'Piece',3,5250,5100);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P07965','540 HDD',4,'Piece',3,8400,8000);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P07975','1.44 Floppies',5,'Piece',3,1050,1000);
+INSERT INTO product_master (product_no,description,profit_percent,unit_measure,record_lvl,sell_price,cost_price) VALUES('P08865','1.22 Floppies',5,'Piece',3,1050,1000);
+
+DROP TABLE product_master;
+SELECT * from product_master;
+
+CREATE TABLE salesman_master(
+    salesman_no VARCHAR2(6),
+    salesman_name VARCHAR2(20)NOT NULL,
+    address1 VARCHAR2(30)NOT NULL,
+    address2 VARCHAR2(30),
+    city VARCHAR2(20),
+    pincode NUMBER(6),
+    state VARCHAR2(15),
+    sal_amt NUMBER(8,2) NOT NULL CHECK(sal_amt > 0),
+    tgt_to_get NUMBER(6,2) NOT NULL CHECK(tgt_to_get > 0),
+    ytd_sales NUMBER(6,2) NOT NULL,
+    remarks VARCHAR2(60),
+    CONSTRAINT salesman_no_pk PRIMARY KEY(salesman_no),
+    CONSTRAINT salesman_no_ck CHECK(salesman_no LIKE 'S%')
+);
+
+INSERT INTO salesman_master values('S00001','KIRAN','A/14','WORLI','BOMBAY',400002,'MAH',3000,100,50,'GOOD');
+INSERT INTO salesman_master values('S00002','MANISH','65','NARIMAN','BOMBAY',400001,'MAH',3000,200,100,'GOOD');
+INSERT INTO salesman_master values('S00003','RAVI','P-7','BANDRA','BOMBAY',400032,'MAH',3000,200,100,'GOOD');
+INSERT INTO salesman_master values('S00004','ASHISH','A/5','JUHU','BOMBAY',400044,'MAH',3500,200,150,'GOOD');
+
+DROP TABLE salesman_master;
+SELECT * from salesman_master;
+
+ CREATE TABLE sales_order(
+    s_order_no VARCHAR2(6),
+    s_order_date DATE,
+    client_no VARCHAR2(6),
+    dely_addr VARCHAR2(25),
+    salesman_no VARCHAR2(6),
+    dely_type CHAR(1) DEFAULT 'F',
+    billed_yn CHAR(1) DEFAULT 'N',
+    dely_date DATE,
+    order_status VARCHAR2(10),
+    CONSTRAINT s_order_no_pk PRIMARY KEY(s_order_no),
+    CONSTRAINT s_order_no_ck CHECK(s_order_no LIKE 'O%'),
+    CONSTRAINT client_no_fk FOREIGN KEY(client_no) REFERENCES client_master(client_no),
+    CONSTRAINT salesman_no_fk FOREIGN KEY(salesman_no) REFERENCES salesman_master(salesman_no),
+    CONSTRAINT dely_type_ck CHECK( dely_type ='P' or  dely_type ='F'),
+    CONSTRAINT  billed_yn_ck CHECK( billed_yn ='Y' or    billed_yn ='N'),
+    CONSTRAINT dely_date_ck CHECK(dely_date > s_order_date),
+    CONSTRAINT order_status_ck CHECK(order_status IN ('In Process','FulFilled','BackOrder','Cancelled'))   
+);
+ INSERT INTO sales_order(s_order_no,s_order_date,client_no,dely_type,billed_yn,salesman_no,dely_date,order_status)
+    VALUES ('O19001','12-JAN-1996','C00001','F','N','S00001','20-JAN-1996','In Process');
+     INSERT INTO sales_order (s_order_no,s_order_date,client_no,dely_type,billed_yn,salesman_no,dely_date,order_status)
+    VALUES ('O19002','25-JAN-1996','C00002','P','N','S00002','27-JAN-1996','Cancelled');
+     INSERT INTO sales_order (s_order_no,s_order_date,client_no,dely_type,billed_yn,salesman_no,dely_date,order_status)
+    VALUES ('O46865','18-FEB-1996','C00003','F','Y','S00003','20-FEB-1996','FulFilled');
+     INSERT INTO sales_order (s_order_no,s_order_date,client_no,dely_type,billed_yn,salesman_no,dely_date,order_status)
+    VALUES ('O19003','03-APR-1996','C00001','F','Y','S00001','07-APR-1996','FulFilled');
+
+DROP TABLE sales_order;
+SELECT * from sales_order;
+ 
+CREATE TABLE sales_order_details(
+    s_order_no VARCHAR2(6),
+    product_no VARCHAR2(6),
+    qty_ordered NUMBER(8),
+    qty_disp NUMBER(8),
+    product_rate NUMBER(10,2),
+    CONSTRAINT s_order_no_fk FOREIGN KEY(s_order_no) REFERENCES sales_order(s_order_no),
+    CONSTRAINT product_no_fk FOREIGN KEY(product_no) REFERENCES product_master(product_no)
+);
+
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19001','P00001',4,4,525);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19001','P07965',2,1,8400);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19001','P07885',2,1,5250);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19002','P00001',10,0,525);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P07868',3,3,3150);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P07865',3,1,5250);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P00001',10,10,525);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P03453',4,4,1050);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19003','P03453',2,2,1050);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19003','P06734',1,1,12000);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P07965',1,0,8400);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O46865','P07975',1,0,1050);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19003','P00001',10,5,525);
+INSERT INTO sales_order_details(s_order_no,product_no,qty_ordered,qty_disp,product_rate)
+values('O19003','P07975',5,3,1050);
+
+DROP TABLE sales_order_details;
+SELECT * from sales_order_details;
+
+CREATE TABLE challan_header(
+    challan_no VARCHAR2(6),
+    s_order_no VARCHAR2(6),
+    challan_date DATE NOT NULL,
+    billed_yn CHAR(1) DEFAULT 'N' ,
+    CONSTRAINT challan_no_pk_ PRIMARY KEY( challan_no),
+    CONSTRAINT challan_no_ck_ CHECK ( challan_no LIKE 'CH%'),
+    CONSTRAINT s_order_no_fk_ FOREIGN KEY(s_order_no) REFERENCES sales_order( s_order_no),  
+    CONSTRAINT  billed_yn_ck_ CHECK (billed_yn ='Y' OR billed_yn ='N')
+);
+
+INSERT INTO Challan_header(challan_no,s_order_no,challan_date,billed_yn)
+values('CH9001','O19001','12-DEC-1995','Y');
+INSERT INTO Challan_header(challan_no,s_order_no,challan_date,billed_yn)
+values('CH6865','O46865','12-NOV-1995','Y');
+INSERT INTO Challan_header(challan_no,s_order_no,challan_date,billed_yn)
+values('CH3965','O19001','12-OCT-1995','Y');
+
+DROP TABLE challan_header;
+SELECT * from challan_header;
+
+CREATE TABLE challan_details(
+    challan_no VARCHAR2(6),
+    product_no VARCHAR2(6),
+    qty_disp NUMBER(4,2) NOT NULL,
+    CONSTRAINT challan_no_pok PRIMARY KEY(challan_no,product_no),
+    CONSTRAINT challan_no_fok FOREIGN KEY(challan_no) REFERENCES challan_header(challan_no),
+    CONSTRAINT product_no_fok FOREIGN KEY(product_no) REFERENCES product_master(product_no)
+ );
+ 
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH9001','P00001',4);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH9001','P07965',1);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH9001','P07885',1);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH6865','P07868',3);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH6865','P03453',4);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH6865','P00001',10);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH3965','P00001',5);
+INSERT INTO Challan_details(challan_no,product_no,qty_disp)
+values('CH3965','P07975',2);
+ 
+DROP TABLE challan_details;
+ 
+SELECT * from challan_details;
+
+
+------>new day 23/08/22
+
+drop table project_details;
+drop table employee_details;
+
+
+CREATE TABLE employee_details(
+    employee_id NUMBER(10),
+    first_name VARCHAR2(50) NOT NULL,
+     last_name VARCHAR2(50) NOT NULL,
+     age NUMBER (3) NOT NULL,
+     gender VARCHAR(6) NOT NULL,
+     qualification VARCHAR(6) NOT NULL,
+     city VARCHAR(50) NOT NULL,
+     date_of_birth DATE NOT NULL,
+     salary NUMBER (10,2),
+     CONSTRAINT employee_id_pk PRIMARY KEY(employee_id)
+     );
+     
+    INSERT INTO employee_details VALUES (3705,'Yash','Walanju',21,'Male','B.Tech','Alibag','09-APR-2001',25000);
+    delete from employee_details where employee_id=3705;
+     
+    
+
+
+    
+
+
+select * from employee_details;
+truncate table employee_details;
+
+
+INSERT INTO employee_details values (3681,'Ashish','Kamble',32,'Male','M.Tech','Nagpur','13-Jun-1990',25000);
+INSERT INTO employee_details values (3680, 'Anjali','Pandey',22, 'Female', 'B.Tech' ,'Kalyan','16-SEP-2000',25000);
+INSERT INTO employee_details values (3683,'Gagandeep Kaur','Jandu',21,'Female','B.E.','Kalyan','17-MAR-2001',30000);
+INSERT INTO employee_details values (3690,'pratik','mishra',22,'Male','B.E.','Pune','06-JUL-2000',25000);
+INSERT INTO employee_details values (3689,'Pratik','Ghadge',23,'Male','B.E.','Mumbai','16-OCT-98',1000);
+INSERT INTO employee_details VALUES (3706, 'Vineet','Gauda',22, 'Male', 'B.E.' ,'Mumbai','19-SEP-1999',25000);	
+INSERT INTO employee_details values (3701,'Rohit','Dagade',21,'Male','B.E.','Mumbai','25-APR-2001',30000);
+INSERT INTO employee_details VALUES (3705,'Yash','Walanju',21,'Male','B.Tech','Alibag','09-APR-2001',25000);
+INSERT INTO employee_details VALUES (3703,'Janhavi','More',22,'Female','B.E.','Thane','28-APR-2000',25000);
+INSERT into employee_details values (3679,'Gaurav','Baswant',25,'Male','B.E.','Mumbai','15-Jun-1998',25000);
+INSERT INTO employee_details values (3682,'Dinesh','Rajan',22,'Male','B E.','Mumbai','13-Nov-2000',25000);
+INSERT INTO employee_details values (3699,'Vipul','Tambavekar',23,'Male','M.Tech','Satara','06-March-1997',26000);
+INSERT INTO employee_details values (3700,'Pradeep','sawant',24,'Male','B.E.','Pune','12-DEC-1997',25000);
+INSERT INTO employee_details values (3702,'Siddhesh','Kumbhar',23,'Male','B. Tech','Satara','10-Jun-1999',25000);
+INSERT INTO employee_details values (3685,'Kapil','Khandpekar',26,'Male','B.E.','Mumbai','03-May-1995',25300);
+INSERT INTO employee_details values (3693, 'Sayali','Shete',22,'Female','B.E.','Mumbai','20-NOV-1999',25000);
+INSERT INTO employee_details values (3707, 'Suraj','Gupta',23, 'Male', 'B.Tech' ,'Vasai','20-jan-1999',25000);
+INSERT INTO employee_details values (3698,'Suraj','Patel',24,'Male','B.E.','Mumbai','13-Jun-1998',25000);
+INSERT INTO employee_details values (3688,'Prashant','Zunzarrao',24,'Male','B.E.','Kalyan','23-Dec-1997',25000);
+INSERT INTO employee_details values (3695,'Siraj','Shaikh',24,'Male','B.E.','Mumbai','01-jan-1998',25000);
+INSERT INTO employee_details values (3704,'Amit','Wagharalkar',24,'Male','B.E.','Mumbai','11-july-1998',25000);
+INSERT INTO employee_details values (3692,'Rohit','Pandey',28,'Male','B.E.','Mumbai','01-JAN-1994',25797);
+INSERT INTO employee_details values (3678,'ajay','benbansi',25,'Male','B.E.','Mumbai','22-oct-1997',25000); 
+INSERT INTO employee_details values (3614,'Rishab','Gharti',23,'Male','B.Tech','Mumbai','14-DEC-1998',25000);
+INSERT INTO employee_details values (3691,'Kunal','Aakre',24,'Male','B.Tech','Nasik','06-Mar-1998',25000);
+INSERT INTO employee_details values (3694,'SHABAN Ali','KHAN',23,'Male','B.E. MECH','Mumbai','06-JAN-1998',800);
+INSERT INTO employee_details values (3696,'Shakti','Patole',22,'Male','B.E','BADLAPUR','24-MAR-2000',25000);
+INSERT INTO employee_details values (3697, 'Siddhesh', 'Patangrao', 26, 'Male', 'B.E.', 'Ambivli', '22-Apr-1996', 2500);                  
+INSERT into employee_details values (3655,'Amol','Pawar',24,'Male','B.E.','Kolhapur','21-Oct-1998',26000);
+INSERT into employee_details values(3686,'Kavita','Khajure',23,'Female','B.Tech','Thane','25-Aug-1999',25000);
+
+SELECT 
+    employee_id,first_name,last_name
+FROM 
+    employee_details;
+    
+    
+    truncate table employee_details;
+
+INSERT INTO employee_details values (3681,'Ashish','Kamble',32,'Male','M.Tech','Nagpur','13-Jun-1990',25000);
+INSERT INTO employee_details values (3680, 'Anjali','Pandey',22, 'Female', 'B.Tech' ,'Kalyan','16-SEP-2000',25000);
+INSERT INTO employee_details values (3683,'Gagandeep Kaur','Jandu',21,'Female','B.E.','Kalyan','17-MAR-2001',30000);
+INSERT INTO employee_details values (3690,'pratik','mishra',22,'Male','B.E.','Pune','06-JUL-2000',25000);
+INSERT INTO employee_details values (3689,'Pratik','Ghadge',23,'Male','B.E.','Mumbai','16-OCT-98',1000);
+INSERT INTO employee_details VALUES (3706, 'Vineet','Gauda',22, 'Male', 'B.E.' ,'Mumbai','19-SEP-1999',25000);	
+INSERT INTO employee_details values (3701,'Rohit','Dagade',21,'Male','B.E.','Mumbai','25-APR-2001',30000);
+INSERT INTO employee_details VALUES (3705,'Yash','Walanju',21,'Male','B.Tech','Alibag','09-APR-2001',25000);
+INSERT INTO employee_details VALUES (3703,'Janhavi','More',22,'Female','B.E.','Thane','28-APR-2000',25000);
+INSERT into employee_details values (3679,'Gaurav','Baswant',25,'Male','B.E.','Mumbai','15-Jun-1998',25000);
+INSERT INTO employee_details values (3682,'Dinesh','Rajan',22,'Male','B E.','Mumbai','13-Nov-2000',25000);
+INSERT INTO employee_details values (3699,'Vipul','Tambavekar',23,'Male','M.Tech','Satara','06-March-1997',26000);
+INSERT INTO employee_details values (3700,'Pradeep','sawant',24,'Male','B.E.','Pune','12-DEC-1997',25000);
+INSERT INTO employee_details values (3702,'Siddhesh','Kumbhar',23,'Male','B. Tech','Satara','10-Jun-1999',25000);
+INSERT INTO employee_details values (3685,'Kapil','Khandpekar',26,'Male','B.E.','Mumbai','03-May-1995',25300);
+INSERT INTO employee_details values (3693, 'Sayali','Shete',22,'Female','B.E.','Mumbai','20-NOV-1999',25000);
+INSERT INTO employee_details values (3707, 'Suraj','Gupta',23, 'Male', 'B.Tech' ,'Vasai','20-jan-1999',25000);
+INSERT INTO employee_details values (3698,'Suraj','Patel',24,'Male','B.E.','Mumbai','13-Jun-1998',25000);
+INSERT INTO employee_details values (3688,'Prashant','Zunzarrao',24,'Male','B.E.','Kalyan','23-Dec-1997',25000);
+INSERT INTO employee_details values (3695,'Siraj','Shaikh',24,'Male','B.E.','Mumbai','01-jan-1998',25000);
+INSERT INTO employee_details values (3704,'Amit','Wagharalkar',24,'Male','B.E.','Mumbai','11-july-1998',25000);
+INSERT INTO employee_details values (3692,'Rohit','Pandey',28,'Male','B.E.','Mumbai','01-JAN-1994',25797);
+INSERT INTO employee_details values (3678,'ajay','benbansi',25,'Male','B.E.','Mumbai','22-oct-1997',25000); 
+INSERT INTO employee_details values (3614,'Rishab','Gharti',23,'Male','B.Tech','Mumbai','14-DEC-1998',25000);
+INSERT INTO employee_details values (3691,'Kunal','Aakre',24,'Male','B.Tech','Nasik','06-Mar-1998',25000);
+INSERT INTO employee_details values (3694,'SHABAN Ali','KHAN',23,'Male','B.E. MECH','Mumbai','06-JAN-1998',800);
+INSERT INTO employee_details values (3696,'Shakti','Patole',22,'Male','B.E','BADLAPUR','24-MAR-2000',25000);
+INSERT INTO employee_details values (3697, 'Siddhesh', 'Patangrao', 26, 'Male', 'B.E.', 'Ambivli', '22-Apr-1996', 2500);                  
+INSERT into employee_details values (3655,'Amol','Pawar',24,'Male','B.E.','Kolhapur','21-Oct-1998',26000);
+INSERT into employee_details values(3686,'Kavita','Khajure',23,'Female','B.Tech','Thane','25-Aug-1999',25000);
+
+
+ SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    city='Kalyan';
+    -------------->
+    SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    city='Kalyan' AND qualification='B.E.';
+    -------->
+   SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    city!='Mumbai';
+    ---------->
+ SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    city  in ('Pune','Mumbai');
+    ------>
+    SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    salary  NOT  BETWEEN 25000 AND 30000;
+    
+SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    first_name LIKE 'A%';
+    
+    
+    
+    SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    last_name LIKE '%ar';
+    
+    
+    SELECT 
+    *
+ FROM 
+    employee_details
+ WHERE 
+    first_name LIKE 'A%';
+    
+    SELECT 
+    *
+ FROM 
+    employee_details
+ ORDER BY first_name DESC;
+    
+SELECT  city , first_name,last_name FROM   employee_detailS ORDER BY first_name ASC;
+    
+SELECT  city , first_name,last_name FROM   employee_detailS ORDER BY city ASC;
+     
+SELECT  city , first_name,last_name FROM   employee_detailS ORDER BY city,first_name ASC;
+
+SELECT AVG(salary) "average" FROM employee_details;
+
+ SELECT MAX(salary)"maximum" FROM employee_details;
+ 
+ SELECT MIN(salary)"minimum" FROM employee_details;
+ 
+ SELECT COUNT(city)"count" FROM employee_details where city='Mumbai';
+ 
+SELECT city"city",COUNT(city)"count" FROM employee_details 
+GROUP BY city order by city;
+ 
+SELECT city"city",COUNT(city)"count" FROM employee_details 
+GROUP BY city order by COUNT(city) ;
+ 
+ 
+ SELECT city"city",SUM(salary)"sum of sal" FROM employee_details 
+GROUP BY city 
+HAVING SUM(salary)>=80000
+order by SUM(salary) ASC;
+
+SELECT city"city",SUM(salary)"sum of sal" FROM employee_details 
+GROUP BY city 
+HAVING SUM(salary)<80000
+order by SUM(salary) DESC;
+
+CREATE TABLE color_a(
+    color_id NUMBER(10),
+    name VARCHAR(50)
+
+);
+ INSERT INTO color_a VALUES (1,'Blue');
+  INSERT INTO color_a VALUES (2,'Green ');
+ INSERT INTO color_a VALUES (3,'Yello');
+ 
+ 
+CREATE TABLE color_b(
+    color_id NUMBER(10),
+    name VARCHAR(50)
+
+);
+ INSERT INTO color_b VALUES (1,'Blue');
+ INSERT INTO color_b VALUES (2,'Green');
+ INSERT INTO color_b VALUES (4,'Gold');
+ 
+  select * from color_a;
+select * from color_b;
+select * from color_a cross join color_b;
+
+select * from color_a JOIN color_b ON color_a.color_id = color_b.color_id;
+    
+select * from color_a  a JOIN color_b  b ON a.color_id = b.color_id;
+
+select * from color_a  a  NATURAL JOIN color_b  b ;
+
+select * from color_a  a LEFT JOIN color_b  b ON a.color_id = b.color_id;
+
+
+    select * from color_a  a RIGHT JOIN color_b  b ON a.color_id = b.color_id;
+
+    
+     select * from color_a  a FULL OUTER  JOIN color_b  b ON a.color_id = b.color_id;
+     
+     
+     CREATE TABLE employee_manager_details(
+     employee_id NUMBER(10),
+     name VARCHAR2(20),
+     designation VARCHAR(20),
+     reports_to NUMBER(10)
+     );
+     
+INSERT INTO employee_manager_details VALUES(101,'x','Director',null);
+INSERT INTO employee_manager_details VALUES(102,'y','Manager',101);
+INSERT INTO employee_manager_details VALUES(103,'z','Jr Manager',102);
+INSERT INTO employee_manager_details VALUES(104,'a','Developer',103);
+INSERT INTO employee_manager_details VALUES(105,'b','Developer',103);
+  
+  
+select * from employee_manager_details;
+    
+select * from employee_manager_details emp CROSS JOIN employee_manager_details mgr;
+
+select * from employee_manager_details emp  JOIN employee_manager_details mgr on emp.reports_to= mgr.employee_id;
+
+
+select emp.name,'reports_to',mgr.name from employee_manager_details emp  JOIN employee_manager_details mgr on emp.reports_to= mgr.employee_id;
+
+CREATE TABLE project_details(
+             project_id NUMBER(10),
+             title VARCHAR2(50),
+             cost NUMBER(10,2),
+             client_name VARCHAR2(50),
+             CONSTRAINT project_id_pk PRIMARY KEY(project_id)
+             );
+
+drop table employee_details;
+drop table project_details;
+
+  CREATE TABLE employee_details(
+    employee_id NUMBER(10),
+    first_name VARCHAR2(20) NOT NULL,
+    last_name VARCHAR2(20) NOT NULL,
+    age NUMBER(3) NOT NULL,
+    gender VARCHAR2(6) NOT NULL,
+    salary NUMBER(10,2) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    project_id NUMBER(10) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    city VARCHAR2(20) DEFAULT 'Mumbai',
+    CONSTRAINT employee_id_pk PRIMARY KEY(employee_id),
+    CONSTRAINT project_id_fk FOREIGN KEY(project_id) REFERENCES project_details(project_id),
+    CONSTRAINT age_ck CHECK(age >= 18),
+    CONSTRAINT email_uq UNIQUE(email)
+);
+
+INSERT INTO project_details VALUES(1,'Gpay',10000,'Google');
+INSERT INTO project_details VALUES(2,'PhonePay',5000,'Phone Pay Tech');
+
+
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email)
+VALUES(101,'Gagandeep kaur','Jandu',21,'Female',20000,'17-MAR-01',1,'gagan@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES(102,'Anjali','Pandey',22,'Female',25000,'27-JAN-01',2,'abc@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES(103,'Sejal','Jain',21,'male',30000,'16-SEP-01',1,'abcd@gmail.com');
+
+
+
+truncate table employee_details;
+
+select * from  project_details;
+select * from  employee_details;
+
+select * from employee_details emp join project_details project
+on emp.project_id=project.project_id
+and project.title='Gpay';
+
+
+select * from employee_details
+where  project_id=(select project_id
+from project_details
+where title='Gpay');
+
+select * from employee_details
+where  not exists (select project_id
+from project_details
+where title='BHIM');
+
+select * from employee_details
+where  exists (select project_id
+from project_details
+where title='BHIM');
+
+CREATE SEQUENCE employee_sequence;
+
+SELECT employee_sequence.nextVal FROM  dual;
+SELECT employee_sequence.currVal FROM  dual;
+
+
+
+
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email)
+VALUES(employee_sequence.nextVal,'Gagandeep kaur','Jandu',21,'Female',20000,'17-MAR-01',1,'gagan@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES(employee_sequence.nextVal,'Anjali','Pandey',22,'Female',25000,'27-JAN-01',2,'abc@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES(employee_sequence.nextVal,'Sejal','Jain',21,'male',30000,'16-SEP-01',1,'abcd@gmail.com');
+
+select * from employee_details;
+
+
+CREATE TABLE employee_details(
+    employee_id VARCHAR2(10),
+    first_name VARCHAR2(20) NOT NULL,
+    last_name VARCHAR2(20) NOT NULL,
+    age NUMBER(3) NOT NULL,
+    gender VARCHAR2(6) NOT NULL,
+    salary NUMBER(10,2) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    project_id NUMBER(10) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    city VARCHAR2(20) DEFAULT 'Mumbai',
+    CONSTRAINT employee_id_pk PRIMARY KEY(employee_id),
+    CONSTRAINT project_id_fk FOREIGN KEY(project_id) REFERENCES project_details(project_id),
+    CONSTRAINT age_ck CHECK(age >= 18),
+    CONSTRAINT email_uq UNIQUE(email)
+);
+
+
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email)
+VALUES('MGS'||employee_sequence.nextVal,'Gagandeep kaur','Jandu',21,'Female',20000,'17-MAR-01',1,'gaganJAAN@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES('MGS'||employee_sequence.nextVal,'Anjali','Pandey',22,'Female',25000,'27-JAN-01',2,'abcDEEE@gmail.com');
+INSERT INTO employee_details(employee_id,first_name,last_name,age,gender,salary,date_of_birth,project_id,email) 
+VALUES('MGS'||employee_sequence.nextVal,'Sejal','Jain',21,'male',30000,'16-SEP-01',1,'abDWEcd@gmail.com');
+
+
+CREATE SEQUENCE employee_sequence START WITH 10000
+INCREMENT BY 10;
+
+
+--------->STRING FUNCTIONS
+----ascii values
+SELECT ASCII('a') FROM dual;
+SELECT ASCII('b') FROM dual;
+
+------char
+SELECT CHR(65) FROM dual;
+SELECT CHR(97) FROM dual;
+
+------CONCAT FUNCTION
+
+SELECT CONCAT('Happy','Coding') FROM dual;
+SELECT 'HAPPP'||''||'CODING' FROM DUAL;
+
+SELECT INITCAP('HAPPY CODING') FROM DUAL;----->FIRST LETTER CAPITAL
+
+SELECT LENGTH('MINDGATE SOLUTIONS') FROM DUAL;
+
+SELECT * FROM EMPLOYEE_DETAILS  ORDER BY LENGTH('') desc;
+
+
+------>for date
+SELECT SYSDATE FROM DUAL;
+
+SELECT ADD_MONTHS(SYSDATE,-1) FROM DUAL;--->FOR MONTHS 
+
+SELECT (SYSDATE+5) FROM DUAL;--->FOR DAYS
+
+
+-------EXTRACT A DAY FROM DATE 
+
+SELECT EXTRACT (DAY FROM SYSDATE)FROM DUAL;---TODAYS DATE
+SELECT EXTRACT (DAY FROM TO_DATE('13-DEC-2022','DD-MON-YYYY'))FROM DUAL;---->SELFMADE DATE
+
+SELECT EXTRACT (MONTH FROM SYSDATE)FROM DUAL;---TODAYS DATE
+SELECT EXTRACT (MONTH FROM TO_DATE('13-DEC-2022','DD-MON-YYYY'))FROM DUAL;---->SELFMADE DATE
+
+SELECT EXTRACT (YEAR FROM SYSDATE)FROM DUAL;---TODAYS DATE
+SELECT EXTRACT (YEAR FROM TO_DATE('13-DEC-2022','DD-MON-YYYY'))FROM DUAL;---->SELFMADE DATE
+
+
+
+------VIEW (WHAT IS VISIBLE)
+SELECT * FROM employee_details;
+
+CREATE VIEW employee_view
+AS
+        SELECT 
+                employee_id,first_name,last_name,gender
+        FROM  employee_details;
+        
+SELECT * FROM employee_view;
+
+SELECT employee_id,first_name FROM employee_view;
+
+update   employee_view 
+set first_name='yash'
+where employee_id=3681;
+
+------->INDEXES(APPLY ONLY FOR FREQUENTLY SEARCH)
+
+CREATE INDEX employee_first_name
+ON employee_details(first_name);
+
+select * from all_indexes where table_name='EMPLOYEE_DETAILS';
+
+
+
+--------->STORED PROCEDURE
+DROP TABLE EMPLOYEE_DETAILS;
+ 
+ CREATE TABLE EMPLOYEE_DETAILS(
+    employee_id  NUMBER(10),
+    name VARCHAR2(20) NOT NULL,
+    salary NUMBER(10)NOT NULL,
+    CONSTRAINT employee_id_pk PRIMARY KEY(employee_id)
+    
+ );
+
+---->procedure
+
+CREATE OR REPLACE PROCEDURE insert_new_employee(
+        p_employee_id IN NUMBER,
+        p_name IN  VARCHAR2,
+        p_salary IN NUMBER
+)
+IS 
+BEGIN
+        INSERT INTO employee_details
+        VALUES(p_employee_id,p_name,p_salary);
+        COMMIT;
+END;
+/
+
+BEGIN
+     insert_new_employee(101,'x',100);
+END;
+/
+SELECT * FROM employee_details;
